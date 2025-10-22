@@ -1,0 +1,94 @@
+/* Marca de la barra de navegación en negrita */
+.navbar-brand {
+    font-weight: 700 !important;
+}
+
+/* Botones de navegación */
+.nav-btn {
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 0.45rem 1.1rem;
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    margin-left: 0.2rem;
+    margin-right: 0.2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.nav-btn:focus, 
+.nav-btn:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    outline: none;
+}
+
+body {
+    background: linear-gradient(180deg, #e3f0ff 0%, #ffffff 100%);
+    min-height: 100vh;
+}
+
+/* Modal general */
+.modal {
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(44, 62, 80, 0.25);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    padding: 2rem 1.5rem;
+    max-width: 600px;
+    min-width: 320px;
+    margin: auto;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 18px;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: #e74c3c;
+}
+
+/* Estilos para el carrito de facturación */
+.badge-info {
+    background-color: #17a2b8;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Navegación gap */
+.d-flex.gap-2 > * {
+    margin-right: 0.5rem;
+}
+
+.d-flex.gap-2 > *:last-child {
+    margin-right: 0;
+}
