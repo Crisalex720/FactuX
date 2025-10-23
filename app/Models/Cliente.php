@@ -55,9 +55,9 @@ class Cliente extends Model
 		'id_ciudad'
 	];
 
-	public function pai()
+	public function pais()
 	{
-		return $this->belongsTo(Pai::class, 'id_pais');
+		return $this->belongsTo(Pais::class, 'id_pais');
 	}
 
 	public function departamento()

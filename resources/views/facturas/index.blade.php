@@ -27,6 +27,7 @@
                         <tr>
                             <th>Prefijo</th>
                             <th>Consecutivo</th>
+                            <th>Fecha</th>
                             <th>Cliente</th>
                             <th>Productos</th>
                             <th>Atendido por</th>
@@ -38,12 +39,21 @@
                     <tbody>
                         @forelse($facturas as $factura)
                             <tr>
-                                <td>{{ $factura->prefijo_fact }}</td>
-                                <td>{{ $factura->num_fact }}</td>
+                                <td>{{ $factura->prefijo }}</td>
+                                <td>{{ $factura->consecutivo }}</td>
+                                <td>
+                                    @if($factura->fecha_factura)
+                                        {{ \Carbon\Carbon::parse($factura->fecha_factura)->setTimezone('America/Bogota')->format('d/m/Y H:i') }}
+                                    @elseif($factura->created_at)
+                                        {{ \Carbon\Carbon::parse($factura->created_at)->setTimezone('America/Bogota')->format('d/m/Y H:i') }}
+                                    @else
+                                        <span class="text-muted">Sin fecha</span>
+                                    @endif
+                                </td>
                                 <td>{{ $factura->nombre_cliente ?? 'N/A' }}</td>
                                 <td>
                                     <small class="text-muted">
-                                        {{ Str::limit($factura->productos_detalle, 50) }}
+                                        {{ Str::limit($factura->productos, 50) }}
                                     </small>
                                 </td>
                                 <td>{{ $factura->atendido_por ?? 'N/A' }}</td>
@@ -74,7 +84,7 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <p>¿Está seguro que desea anular la factura <strong>{{ $factura->prefijo_fact }}-{{ $factura->num_fact }}</strong>?</p>
+                                                        <p>¿Está seguro que desea anular la factura <strong>{{ $factura->prefijo }}-{{ $factura->consecutivo }}</strong>?</p>
                                                         <p><strong>Cliente:</strong> {{ $factura->nombre_cliente }}</p>
                                                         <p><strong>Total:</strong> ${{ number_format($factura->total_factura, 2) }}</p>
                                                         <div class="alert alert-warning">
@@ -98,7 +108,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4">
+                                <td colspan="9" class="text-center py-4">
                                     <div class="text-muted">
                                         <i class="fas fa-file-invoice fa-3x mb-3"></i>
                                         <p>No hay facturas registradas</p>

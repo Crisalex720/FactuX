@@ -16,11 +16,11 @@
     <!-- Barra de navegación superior -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-4">
         <div class="container-fluid">
-            <a class="navbar-brand font-weight-bold text-primary">Facturación Fácilito</a>
+            <a class="navbar-brand font-weight-bold text-primary">FactuX</a>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item mx-1">
-                        <a class="btn {{ request()->routeIs('usuarios.*') ? 'btn-info disabled' : 'btn-outline-info' }} nav-btn" 
+                        <a class="btn {{ request()->routeIs('usuarios.*') ? 'btn-secondary disabled' : 'btn-outline-secondary' }} nav-btn" 
                            href="{{ route('usuarios.index') }}" 
                            {{ request()->routeIs('usuarios.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
                            Usuarios
@@ -44,10 +44,11 @@
                         </a>
                     </li>
                     <li class="nav-item mx-1">
-                        <a class="btn {{ request()->routeIs('devoluciones.*') ? 'btn-secondary disabled' : 'btn-outline-secondary' }} nav-btn" 
-                           href="#"
-                           {{ request()->routeIs('devoluciones.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
-                           Devoluciones
+                        <a class="btn {{ request()->routeIs('reportes.*') ? 'btn-secondary disabled' : 'btn-outline-secondary' }} nav-btn" 
+                           href="{{ route('reportes.index') }}"
+                           {{ request()->routeIs('reportes.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
+                           Reportes
+                           <i class="bi bi-file-earmark-bar-graph ms-1"></i>
                         </a>
                     </li>
                     <li class="nav-item mx-1">
@@ -58,10 +59,11 @@
                         </a>
                     </li>
                     <li class="nav-item mx-1">
-                        <a class="btn {{ request()->routeIs('clientes.*') ? 'btn-info disabled' : 'btn-outline-info' }} nav-btn" 
-                           href="#"
+                        <a class="btn {{ request()->routeIs('clientes.*') ? 'btn-dark disabled' : 'btn-outline-dark' }} nav-btn" 
+                           href="{{ route('clientes.index') }}"
                            {{ request()->routeIs('clientes.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
                            Clientes
+                           <i class="bi bi-people-fill ms-1"></i>
                         </a>
                     </li>
                     <li class="nav-item mx-1">

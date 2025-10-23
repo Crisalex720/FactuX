@@ -51,8 +51,9 @@ Route::prefix('usuarios')->name('usuarios.')->group(function () {
     Route::delete('/{id}', [UsuariosController::class, 'destroy'])->name('destroy');
 });
 
-// Rutas adicionales si las necesitas
-Route::get('/reportes', function () {
-    return view('reportes.index');
-})->name('reportes');
+// Rutas de reportes
+Route::prefix('reportes')->name('reportes.')->group(function () {
+    Route::get('/', [App\Http\Controllers\ReportesController::class, 'index'])->name('index');
+    Route::get('/kardex', [App\Http\Controllers\ReportesController::class, 'kardex'])->name('kardex');
+});
 

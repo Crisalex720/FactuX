@@ -28,19 +28,23 @@ class ListaProd extends Model
 {
 	protected $table = 'lista_prod';
 	protected $primaryKey = 'id_lista';
-	public $timestamps = false;
+	public $timestamps = true;
 
 	protected $casts = [
 		'id_fact' => 'int',
 		'id_producto' => 'int',
-		'cantidad' => 'float'
+		'cantidad' => 'float',
+		'fecha_producto' => 'datetime',
+		'created_at' => 'datetime',
+		'updated_at' => 'datetime'
 	];
 
 	protected $fillable = [
 		'id_fact',
 		'id_producto',
 		'cantidad',
-		'estado'
+		'estado',
+		'fecha_producto'
 	];
 
 	public function factura()

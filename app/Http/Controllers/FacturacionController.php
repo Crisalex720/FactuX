@@ -9,6 +9,7 @@ use App\Models\Factura;
 use App\Models\Producto;
 use App\Models\Cliente;
 use App\Models\Trabajador;
+use Carbon\Carbon;
 
 class FacturacionController extends Controller
 {
@@ -187,21 +188,26 @@ class FacturacionController extends Controller
             // Obtener próximo consecutivo
             $nextConsecutivo = Factura::max('num_fact') + 1;
 
-            // Crear factura
+            // Crear factura con timestamp de Bogotá
+            $fechaBogota = Carbon::now('America/Bogota');
             $factura = Factura::create([
                 'cliente' => $request->id_cliente,
                 'id_trab' => $trabajador->id_trab,
                 'estado' => 'activa',
                 'num_fact' => $nextConsecutivo,
-                'prefijo_fact' => 'FACT'
+                'prefijo_fact' => 'FACT',
+                'fecha_factura' => $fechaBogota
             ]);
 
-            // Agregar productos a la factura
+            // Agregar productos a la factura con timestamps de Bogotá
             foreach ($carrito as $item) {
                 DB::table('lista_prod')->insert([
                     'id_fact' => $factura->id_fact,
                     'id_producto' => $item['id_producto'],
-                    'cantidad' => $item['cantidad']
+                    'cantidad' => $item['cantidad'],
+                    'fecha_producto' => $fechaBogota,
+                    'created_at' => $fechaBogota,
+                    'updated_at' => $fechaBogota
                 ]);
             }
 

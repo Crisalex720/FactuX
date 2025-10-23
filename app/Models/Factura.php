@@ -32,14 +32,21 @@ class Factura extends Model
 
 	protected $table = 'factura';
 	protected $primaryKey = 'id_fact';
-	public $timestamps = false;
+	public $timestamps = true;
 
 	protected $fillable = [
 		'cliente',
 		'id_trab',
 		'estado',
 		'num_fact',
-		'prefijo_fact'
+		'prefijo_fact',
+		'fecha_factura'
+	];
+
+	protected $casts = [
+		'fecha_factura' => 'datetime',
+		'created_at' => 'datetime',
+		'updated_at' => 'datetime'
 	];
 
 	public function cliente()
