@@ -77,6 +77,95 @@ class FacturacionController extends Controller
         return redirect()->route('facturacion.index')->with('success', 'Producto removido del carrito');
     }
 
+    public function agregarProductoAjax(Request $request)
+    {
+        $request->validate([
+            'id_producto' => 'required|exists:producto,id_producto',
+            'cantidad' => 'required|integer|min:1'
+        ]);
+
+        $carrito = Session::get('carrito', []);
+        $idProducto = $request->id_producto;
+        $cantidad = $request->cantidad;
+
+        // Verificar si el producto ya está en el carrito
+        $encontrado = false;
+        foreach ($carrito as &$item) {
+            if ($item['id_producto'] == $idProducto) {
+                $item['cantidad'] += $cantidad;
+                $encontrado = true;
+                break;
+            }
+        }
+
+        if (!$encontrado) {
+            $carrito[] = [
+                'id_producto' => $idProducto,
+                'cantidad' => $cantidad
+            ];
+        }
+
+        Session::put('carrito', $carrito);
+        
+        return response()->json([
+            'success' => true,
+            'carrito' => $this->formatearCarrito($carrito)
+        ]);
+    }
+
+    public function quitarProductoAjax($idProducto)
+    {
+        $carrito = Session::get('carrito', []);
+        $carrito = array_filter($carrito, function($item) use ($idProducto) {
+            return $item['id_producto'] != $idProducto;
+        });
+        
+        Session::put('carrito', array_values($carrito));
+        
+        return response()->json([
+            'success' => true,
+            'carrito' => $this->formatearCarrito($carrito)
+        ]);
+    }
+
+    public function obtenerCarrito()
+    {
+        $carrito = Session::get('carrito', []);
+        return response()->json([
+            'carrito' => $this->formatearCarrito($carrito)
+        ]);
+    }
+
+    private function formatearCarrito($carrito)
+    {
+        $productos = Producto::whereIn('id_producto', collect($carrito)->pluck('id_producto'))->get();
+        $carritoFormateado = [];
+        $totalFactura = 0;
+
+        foreach ($carrito as $item) {
+            $producto = $productos->firstWhere('id_producto', $item['id_producto']);
+            if ($producto) {
+                $precio = $producto->precio_ventap;
+                $subtotal = $precio * $item['cantidad'];
+                $totalFactura += $subtotal;
+
+                $carritoFormateado[] = [
+                    'id_producto' => $item['id_producto'],
+                    'nombre_prod' => $producto->nombre_prod,
+                    'precio' => $precio,
+                    'cantidad' => $item['cantidad'],
+                    'subtotal' => $subtotal
+                ];
+            }
+        }
+
+        return [
+            'items' => $carritoFormateado,
+            'total' => $totalFactura,
+            'nextConsecutivo' => Factura::max('num_fact') + 1
+        ];
+    }
+
     public function finalizarFactura(Request $request)
     {
         $carrito = Session::get('carrito', []);
@@ -121,6 +210,9 @@ class FacturacionController extends Controller
 
             DB::commit();
 
+            // Restablecer cliente final después de crear la factura
+            $clienteDefault = Cliente::where('nombre_cl', 'ilike', '%cliente final%')->first();
+            
             return redirect()->route('facturacion.index')->with('success', 'Factura registrada correctamente');
 
         } catch (\Exception $e) {

@@ -73,7 +73,7 @@
     </nav>
 
     <!-- Mensajes de éxito/error -->
-    @if(session('success'))
+    @if(session('success') && str_contains(session('success'), 'Factura registrada'))
         <div id="modalMensaje" class="modal" style="display:block;">
             <div class="modal-content" style="max-width:400px;margin:auto;">
                 <span class="close" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>

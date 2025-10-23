@@ -36,7 +36,10 @@ Route::get('inventario/stock/bajo', [InventarioController::class, 'stockBajo'])-
 Route::prefix('facturacion')->name('facturacion.')->group(function () {
     Route::get('/', [FacturacionController::class, 'index'])->name('index');
     Route::post('/agregar', [FacturacionController::class, 'agregarProducto'])->name('agregar');
+    Route::post('/agregar-ajax', [FacturacionController::class, 'agregarProductoAjax'])->name('agregar.ajax');
     Route::get('/quitar/{id}', [FacturacionController::class, 'quitarProducto'])->name('quitar');
+    Route::delete('/quitar-ajax/{id}', [FacturacionController::class, 'quitarProductoAjax'])->name('quitar.ajax');
+    Route::get('/carrito', [FacturacionController::class, 'obtenerCarrito'])->name('carrito');
     Route::post('/finalizar', [FacturacionController::class, 'finalizarFactura'])->name('finalizar');
 });
 
