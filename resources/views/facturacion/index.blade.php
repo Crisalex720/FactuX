@@ -114,45 +114,12 @@
 
     <hr>
 
-    <!-- Listado de facturas -->
-    <h3>Listado de Facturas</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Prefijo</th>
-                <th>Consecutivo</th>
-                <th>Cliente</th>
-                <th>Productos</th>
-                <th>Atendido por</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($facturas as $factura)
-                <tr>
-                    <td>{{ $factura->prefijo_fact }}</td>
-                    <td>{{ $factura->num_fact }}</td>
-                    <td>{{ $factura->nombre_cliente }}</td>
-                    <td>{{ $factura->productos_detalle }}</td>
-                    <td>{{ $factura->atendido_por }}</td>
-                    <td>${{ number_format($factura->total_factura, 2) }}</td>
-                    <td>{{ $factura->estado }}</td>
-                    <td>
-                        @if($factura->estado !== 'anulado')
-                            <a href="{{ route('facturacion.anular', $factura->id_fact) }}" 
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('¿Seguro que desea anular esta factura?');">
-                                Anular
-                            </a>
-                        @else
-                            <span class="text-muted">-</span>
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+    <!-- Acceso al módulo de facturas -->
+    <div class="text-center">
+        <a href="{{ route('facturas.index') }}" class="btn btn-info btn-lg">
+            <i class="fas fa-file-invoice"></i> Ver Todas las Facturas
+        </a>
+        <p class="text-muted mt-2">Consulta y gestiona todas las facturas registradas</p>
+    </div>
 </div>
 @endsection

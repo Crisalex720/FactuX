@@ -36,6 +36,14 @@
                         </a>
                     </li>
                     <li class="nav-item mx-1">
+                        <a class="btn {{ request()->routeIs('facturas.*') ? 'btn-warning disabled' : 'btn-outline-warning' }} nav-btn" 
+                           href="{{ route('facturas.index') }}"
+                           {{ request()->routeIs('facturas.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
+                           Facturas
+                           <i class="bi bi-file-earmark-text ms-1"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item mx-1">
                         <a class="btn {{ request()->routeIs('devoluciones.*') ? 'btn-secondary disabled' : 'btn-outline-secondary' }} nav-btn" 
                            href="#"
                            {{ request()->routeIs('devoluciones.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>

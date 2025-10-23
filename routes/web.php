@@ -12,8 +12,11 @@ Route::get('/', function () {
     return redirect()->route('inventario.index');
 });
 
-// Rutas para facturas
-Route::resource('facturas', FacturaController::class);
+// Rutas para el listado de facturas (módulo independiente)
+Route::prefix('facturas')->name('facturas.')->group(function () {
+    Route::get('/', [FacturaController::class, 'index'])->name('index');
+    Route::get('/anular/{id}', [FacturaController::class, 'anular'])->name('anular');
+});
 
 // Rutas para clientes
 Route::resource('clientes', ClienteController::class);
@@ -35,7 +38,6 @@ Route::prefix('facturacion')->name('facturacion.')->group(function () {
     Route::post('/agregar', [FacturacionController::class, 'agregarProducto'])->name('agregar');
     Route::get('/quitar/{id}', [FacturacionController::class, 'quitarProducto'])->name('quitar');
     Route::post('/finalizar', [FacturacionController::class, 'finalizarFactura'])->name('finalizar');
-    Route::get('/anular/{id}', [FacturacionController::class, 'anularFactura'])->name('anular');
 });
 
 // Rutas de usuarios

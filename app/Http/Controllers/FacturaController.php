@@ -3,74 +3,55 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Factura; // Asumiendo que tienes esta tabla
-use App\Models\Cliente;
+use Illuminate\Support\Facades\DB;
+use App\Models\Factura;
 
 class FacturaController extends Controller
 {
     public function index()
     {
-        $facturas = Factura::with('cliente')->orderBy('created_at', 'desc')->paginate(15);
+        // Obtener facturas con productos
+        $facturas = DB::table('factura as f')
+            ->leftJoin('cliente as c', 'f.cliente', '=', 'c.id_cliente')
+            ->leftJoin('trabajadores as t', 'f.id_trab', '=', 't.id_trab')
+            ->select([
+                'f.*',
+                'c.nombre_cl as nombre_cliente',
+                't.nombre as atendido_por',
+                DB::raw('COALESCE(f.prefijo_fact, \'FACT\') as prefijo_fact')
+            ])
+            ->orderBy('f.num_fact', 'desc')
+            ->get()
+            ->map(function ($factura) {
+                // Calcular total y productos
+                $productos = DB::table('lista_prod as lp')
+                    ->join('producto as p', 'lp.id_producto', '=', 'p.id_producto')
+                    ->where('lp.id_fact', $factura->id_fact)
+                    ->select('p.nombre_prod', 'lp.cantidad', 'p.precio_ventap')
+                    ->get();
+                
+                $total = $productos->sum(function ($p) {
+                    return $p->precio_ventap * $p->cantidad;
+                });
+                
+                $productosDetalle = $productos->map(function ($p) {
+                    return $p->nombre_prod . ' (' . $p->cantidad . ')';
+                })->implode(', ');
+                
+                $factura->total_factura = $total;
+                $factura->productos_detalle = $productosDetalle;
+                
+                return $factura;
+            });
+        
         return view('facturas.index', compact('facturas'));
     }
 
-    public function create()
+    public function anular($idFactura)
     {
-        $clientes = Cliente::all();
-        return view('facturas.create', compact('clientes'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'cliente_id' => 'required|exists:clientes,id',
-            'fecha' => 'required|date',
-            'subtotal' => 'required|numeric|min:0',
-            'impuesto' => 'required|numeric|min:0',
-            'total' => 'required|numeric|min:0'
-        ]);
-
-        $factura = Factura::create($request->all());
+        $factura = Factura::findOrFail($idFactura);
+        $factura->update(['estado' => 'anulado']);
         
-        return redirect()->route('facturas.show', $factura)
-                        ->with('success', 'Factura creada exitosamente');
-    }
-
-    public function show($id)
-    {
-        $factura = Factura::with('cliente', 'detalles')->findOrFail($id);
-        return view('facturas.show', compact('factura'));
-    }
-
-    public function edit($id)
-    {
-        $factura = Factura::findOrFail($id);
-        $clientes = Cliente::all();
-        return view('facturas.edit', compact('factura', 'clientes'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $factura = Factura::findOrFail($id);
-        
-        $request->validate([
-            'cliente_id' => 'required|exists:clientes,id',
-            'fecha' => 'required|date',
-            'total' => 'required|numeric|min:0'
-        ]);
-
-        $factura->update($request->all());
-        
-        return redirect()->route('facturas.show', $factura)
-                        ->with('success', 'Factura actualizada exitosamente');
-    }
-
-    public function destroy($id)
-    {
-        $factura = Factura::findOrFail($id);
-        $factura->delete();
-        
-        return redirect()->route('facturas.index')
-                        ->with('success', 'Factura eliminada exitosamente');
+        return redirect()->route('facturas.index')->with('success', 'Factura anulada correctamente');
     }
 }
