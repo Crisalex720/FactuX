@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
-class Trabajador extends Model
+class Trabajador extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $table = 'trabajadores';
     protected $primaryKey = 'id_trab';
@@ -25,8 +27,21 @@ class Trabajador extends Model
     ];
 
     protected $hidden = [
-        'contraseña'
+        'contraseña',
+        'remember_token',
     ];
+
+    // Especificar que el campo de usuario es 'cedula' en lugar de 'email'
+    public function getAuthIdentifierName()
+    {
+        return 'cedula';
+    }
+
+    // Especificar que el campo de contraseña es 'contraseña'
+    public function getAuthPassword()
+    {
+        return $this->contraseña;
+    }
 
     public function pais()
     {
@@ -46,5 +61,29 @@ class Trabajador extends Model
     public function facturas()
     {
         return $this->hasMany(Factura::class, 'id_trab', 'id_trab');
+    }
+
+    /**
+     * Verificar si el usuario tiene permiso para un módulo
+     */
+    public function hasPermission($module)
+    {
+        return \App\Services\RolePermissionService::hasPermission($this->cargo, $module);
+    }
+
+    /**
+     * Verificar si es usuario maestro
+     */
+    public function isMaster()
+    {
+        return strtolower($this->cargo) === 'maestro';
+    }
+
+    /**
+     * Obtener módulos disponibles para este usuario
+     */
+    public function getAvailableModules()
+    {
+        return \App\Services\RolePermissionService::getModulesForRole($this->cargo);
     }
 }

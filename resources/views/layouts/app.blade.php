@@ -17,8 +17,11 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-4">
         <div class="container-fluid">
             <a class="navbar-brand font-weight-bold text-primary">FactuX</a>
+            
+            @auth('trabajador')
             <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
+                    @if(Auth::guard('trabajador')->user()->hasPermission('usuarios'))
                     <li class="nav-item mx-1">
                         <a class="btn {{ request()->routeIs('usuarios.*') ? 'btn-secondary disabled' : 'btn-outline-secondary' }} nav-btn" 
                            href="{{ route('usuarios.index') }}" 
@@ -27,6 +30,9 @@
                            <i class="bi bi-people-fill ms-1"></i>
                         </a>
                     </li>
+                    @endif
+
+                    @if(Auth::guard('trabajador')->user()->hasPermission('facturacion'))
                     <li class="nav-item mx-1">
                         <a class="btn {{ request()->routeIs('facturacion.*') ? 'btn-primary disabled' : 'btn-outline-primary' }} nav-btn" 
                            href="{{ route('facturacion.index') }}"
@@ -35,6 +41,9 @@
                            <i class="bi bi-receipt-cutoff ms-1"></i>
                         </a>
                     </li>
+                    @endif
+
+                    @if(Auth::guard('trabajador')->user()->hasPermission('facturas'))
                     <li class="nav-item mx-1">
                         <a class="btn {{ request()->routeIs('facturas.*') ? 'btn-warning disabled' : 'btn-outline-warning' }} nav-btn" 
                            href="{{ route('facturas.index') }}"
@@ -43,6 +52,9 @@
                            <i class="bi bi-file-earmark-text ms-1"></i>
                         </a>
                     </li>
+                    @endif
+
+                    @if(Auth::guard('trabajador')->user()->hasPermission('reportes'))
                     <li class="nav-item mx-1">
                         <a class="btn {{ request()->routeIs('reportes.*') ? 'btn-secondary disabled' : 'btn-outline-secondary' }} nav-btn" 
                            href="{{ route('reportes.index') }}"
@@ -51,6 +63,9 @@
                            <i class="bi bi-file-earmark-bar-graph ms-1"></i>
                         </a>
                     </li>
+                    @endif
+
+                    @if(Auth::guard('trabajador')->user()->hasPermission('inventario'))
                     <li class="nav-item mx-1">
                         <a class="btn {{ request()->routeIs('inventario.*') ? 'btn-success disabled' : 'btn-outline-success' }} nav-btn" 
                            href="{{ route('inventario.index') }}" 
@@ -58,6 +73,9 @@
                            Inventario
                         </a>
                     </li>
+                    @endif
+
+                    @if(Auth::guard('trabajador')->user()->hasPermission('clientes'))
                     <li class="nav-item mx-1">
                         <a class="btn {{ request()->routeIs('clientes.*') ? 'btn-dark disabled' : 'btn-outline-dark' }} nav-btn" 
                            href="{{ route('clientes.index') }}"
@@ -66,11 +84,35 @@
                            <i class="bi bi-people-fill ms-1"></i>
                         </a>
                     </li>
-                    <li class="nav-item mx-1">
-                        <a class="btn btn-outline-danger nav-btn" href="#">Cerrar sesión</a>
+                    @endif
+                </ul>
+                
+                <!-- Información del usuario -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-2"></i>
+                            <span>{{ Auth::guard('trabajador')->user()->nombre }} {{ Auth::guard('trabajador')->user()->apellido }}</span>
+                            <small class="text-muted ms-1">({{ Auth::guard('trabajador')->user()->cargo }})</small>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{{ route('profile') }}">
+                                <i class="bi bi-person me-2"></i>Mi Perfil
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </div>
+            @endauth
         </div>
     </nav>
 

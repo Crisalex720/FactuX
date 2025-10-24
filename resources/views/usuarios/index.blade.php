@@ -40,7 +40,19 @@
 
 @section('content')
 <div class="usuarios-container container py-4">
-    <h2 class="usuarios-title text-center mb-4">Gestión de Usuarios</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="usuarios-title mb-0">Gestión de Usuarios</h2>
+        <div>
+            @if(Auth::guard('trabajador')->user()->isMaster())
+                <a href="{{ route('usuarios.roles') }}" class="btn btn-info me-2">
+                    <i class="bi bi-shield-check me-1"></i>Roles y Permisos
+                </a>
+            @endif
+            <span class="badge bg-primary fs-6">
+                Rol: {{ ucfirst(Auth::guard('trabajador')->user()->cargo) }}
+            </span>
+        </div>
+    </div>
     
     @if(session('success') || session('error'))
         <div id="modalMensaje" class="modal" style="display:none;">
@@ -71,8 +83,15 @@
                 </div>
                     <div class="row g-2 align-items-end ">
                         <div class="col-md-3">
-                            <label class="mb-1">Cargo</label>
-                            <input type="text" name="cargo" class="form-control form-control-sm" required value="{{ old('cargo') }}">
+                            <label class="mb-1">Rol/Cargo</label>
+                            <select name="cargo" class="form-control form-control-sm" required>
+                                <option value="">Seleccionar rol...</option>
+                                @foreach($rolesDisponibles as $roleKey => $roleDesc)
+                                    <option value="{{ $roleKey }}" {{ old('cargo') == $roleKey ? 'selected' : '' }}>
+                                        {{ $roleDesc }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-3">
                             <label class="d-flex align-items-center justify-content-between mb-1">
@@ -146,12 +165,24 @@
                     </thead>
                     <tbody>
                         @forelse($usuarios as $usuario)
-                            <tr>
+                            <tr class="{{ $usuario->cedula == '999999999' ? 'table-warning' : '' }}" 
+                                @if($usuario->cedula == '999999999') title="Usuario Maestro del Sistema" @endif>
                                 <td>{{ $usuario->id_trab }}</td>
-                                <td>{{ $usuario->cedula }}</td>
+                                <td>
+                                    {{ $usuario->cedula }}
+                                    @if($usuario->cedula == '999999999')
+                                        <span class="badge bg-danger ms-2">
+                                            <i class="fas fa-crown"></i> MAESTRO
+                                        </span>
+                                    @endif
+                                </td>
                                 <td>{{ $usuario->nombre }}</td>
                                 <td>{{ $usuario->apellido }}</td>
-                                <td>{{ $usuario->cargo }}</td>
+                                <td>
+                                    <span class="badge bg-{{ $usuario->cargo === 'maestro' ? 'danger' : 'primary' }}">
+                                        {{ \App\Services\RolePermissionService::getAllRoles()[strtolower($usuario->cargo)] ?? ucfirst($usuario->cargo) }}
+                                    </span>
+                                </td>
                                 <td>{{ $usuario->pais->nombre_pais ?? 'N/A' }}</td>
                                 <td>{{ $usuario->departamento->nombre_depart ?? 'N/A' }}</td>
                                 <td>{{ $usuario->ciudad->nombre_ciudad ?? 'N/A' }}</td>
@@ -167,24 +198,64 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-warning btn-sm" onclick="editarUsuario(
-                                        '{{ $usuario->id_trab }}',
-                                        '{{ $usuario->cedula }}',
-                                        '{{ $usuario->nombre }}',
-                                        '{{ $usuario->apellido }}',
-                                        '{{ $usuario->cargo }}',
-                                        '{{ $usuario->contraseña }}',
-                                        '{{ $usuario->id_pais }}',
-                                        '{{ $usuario->id_depart }}',
-                                        '{{ $usuario->id_ciudad }}'
-                                    )">
-                                        <i class="bi bi-pencil-square"></i> Editar
-                                    </button>
-                                    <form action="{{ route('usuarios.destroy', $usuario->id_trab) }}" method="POST" style="display: inline; margin: 0;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar usuario?');">Eliminar</button>
-                                    </form>
+                                    @php
+                                        $currentUser = Auth::guard('trabajador')->user();
+                                        $isMasterUser = $usuario->cedula == '999999999';
+                                        $isCurrentUserMaster = $currentUser->cargo === 'maestro';
+                                        $isOwnUser = $usuario->id_trab == $currentUser->id_trab;
+                                    @endphp
+                                    
+                                    @if($isMasterUser && !$isCurrentUserMaster)
+                                        <!-- Usuario maestro: no mostrar botones si no eres maestro -->
+                                        <span class="text-muted">
+                                            <i class="fas fa-shield-alt"></i> Protegido
+                                        </span>
+                                    @elseif($isMasterUser && $isCurrentUserMaster)
+                                        <!-- Usuario maestro editándose a sí mismo -->
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="editarUsuario(
+                                            '{{ $usuario->id_trab }}',
+                                            '{{ $usuario->cedula }}',
+                                            '{{ $usuario->nombre }}',
+                                            '{{ $usuario->apellido }}',
+                                            '{{ $usuario->cargo }}',
+                                            '{{ $usuario->contraseña }}',
+                                            '{{ $usuario->id_pais }}',
+                                            '{{ $usuario->id_depart }}',
+                                            '{{ $usuario->id_ciudad }}'
+                                        )">
+                                            <i class="bi bi-pencil-square"></i> Editar
+                                        </button>
+                                        <span class="text-muted ms-1">
+                                            <small><i class="fas fa-info-circle"></i> No eliminable</small>
+                                        </span>
+                                    @else
+                                        <!-- Usuarios normales -->
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="editarUsuario(
+                                            '{{ $usuario->id_trab }}',
+                                            '{{ $usuario->cedula }}',
+                                            '{{ $usuario->nombre }}',
+                                            '{{ $usuario->apellido }}',
+                                            '{{ $usuario->cargo }}',
+                                            '{{ $usuario->contraseña }}',
+                                            '{{ $usuario->id_pais }}',
+                                            '{{ $usuario->id_depart }}',
+                                            '{{ $usuario->id_ciudad }}'
+                                        )">
+                                            <i class="bi bi-pencil-square"></i> Editar
+                                        </button>
+                                        
+                                        @if(!$isOwnUser)
+                                            <form action="{{ route('usuarios.destroy', $usuario->id_trab) }}" method="POST" style="display: inline; margin: 0;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar usuario {{ $usuario->nombre }}?');">Eliminar</button>
+                                            </form>
+                                        @else
+                                            <span class="text-muted ms-1">
+                                                <small><i class="fas fa-user-shield"></i> Tu usuario</small>
+                                            </span>
+                                        @endif
+                                    @endif
                                 </td>
                             </tr>
                         @empty
@@ -211,7 +282,14 @@
                             <div><input type="text" name="apellido" id="edit_apellido" class="form-control" placeholder="Apellido" required></div>
                         </div>
                         <div class="fila-campos">
-                            <div><input type="text" name="cargo" id="edit_cargo" class="form-control" placeholder="Cargo" required></div>
+                            <div>
+                                <select name="cargo" id="edit_cargo" class="form-control" required>
+                                    <option value="">Seleccionar rol...</option>
+                                    @foreach($rolesDisponibles as $roleKey => $roleDesc)
+                                        <option value="{{ $roleKey }}">{{ $roleDesc }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="password-input-container">
                                 <input type="password" name="contrasena" id="edit_contrasena" class="form-control" placeholder="Contraseña" required>
                                 <button type="button" class="password-toggle-btn" onclick="toggleEditPassword()">
