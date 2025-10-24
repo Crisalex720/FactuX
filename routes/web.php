@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\ClienteController;
-use App\Http\Controllers\ProductoController;
+// use App\Http\Controllers\ProductoController; // No existe aún
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\FacturacionController;
 use App\Http\Controllers\UsuariosController;
@@ -22,7 +22,7 @@ Route::prefix('facturas')->name('facturas.')->group(function () {
 Route::resource('clientes', ClienteController::class);
 
 // Rutas para productos
-Route::resource('productos', ProductoController::class);
+// Route::resource('productos', ProductoController::class); // Controller no existe aún
 
 // Rutas para inventario
 Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');

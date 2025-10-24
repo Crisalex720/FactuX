@@ -60,8 +60,11 @@
                 @if($productoId)
                     <input type="hidden" name="producto_id" value="{{ $productoId }}">
                 @endif
-                <button type="submit" name="generar_pdf" value="1" class="btn btn-danger">
-                    <i class="bi bi-file-pdf me-1"></i>Descargar PDF
+                <button type="submit" name="generar_pdf" value="1" class="btn btn-info me-2">
+                    <i class="bi bi-eye me-1"></i>Ver PDF
+                </button>
+                <button type="submit" name="generar_pdf" value="download" class="btn btn-danger">
+                    <i class="bi bi-download me-1"></i>Descargar PDF
                 </button>
             </form>
         </div>
