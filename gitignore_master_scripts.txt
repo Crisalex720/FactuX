@@ -1,0 +1,9 @@
+# Agregar estas líneas a tu .gitignore si no quieres versionar los scripts de usuario maestro
+# (Opcional - estos scripts pueden ser útiles para otros desarrolladores)
+
+# Scripts de usuario maestro (opcional)
+# create_master_user.php
+# create_master_user.bat
+# manage_master_user.php
+# manage_master_user.bat
+# CREAR_USUARIO_MAESTRO.md
