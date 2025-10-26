@@ -23,10 +23,24 @@
                     <div class="row">
                         <div class="col-md-4 text-center">
                             <div class="profile-avatar mb-3">
-                                <i class="bi bi-person-circle display-1 text-primary"></i>
+                                @if($trabajador->foto_perfil && file_exists(public_path('uploads/perfiles/' . $trabajador->foto_perfil)))
+                                    <img src="{{ asset('uploads/perfiles/' . $trabajador->foto_perfil) }}" 
+                                         alt="Foto de {{ $trabajador->nombre }}" 
+                                         class="rounded-circle border border-3 border-primary shadow"
+                                         style="width: 150px; height: 150px; object-fit: cover;">
+                                @else
+                                    <div class="rounded-circle border border-3 border-primary d-flex align-items-center justify-content-center mx-auto shadow"
+                                         style="width: 150px; height: 150px; background-color: #f8f9fa;">
+                                        <i class="fas fa-user fa-4x text-primary"></i>
+                                    </div>
+                                @endif
                             </div>
                             <h5 class="text-primary">{{ $trabajador->nombre }} {{ $trabajador->apellido }}</h5>
-                            <p class="text-muted">{{ $trabajador->cargo }}</p>
+                            <p class="text-muted">
+                                <span class="badge bg-{{ $trabajador->cargo === 'maestro' ? 'danger' : 'primary' }} fs-6">
+                                    {{ \App\Services\RolePermissionService::getAllRoles()[strtolower($trabajador->cargo)] ?? ucfirst($trabajador->cargo) }}
+                                </span>
+                            </p>
                         </div>
                         <div class="col-md-8">
                             <h6 class="text-primary mb-3">Información Personal</h6>
@@ -71,7 +85,31 @@
 
                             <hr>
 
-                            <h6 class="text-primary mb-3">Estadísticas</h6>
+                            <!-- Actualizar Foto de Perfil -->
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-camera"></i> Foto de Perfil
+                            </h6>
+                            
+                            <form action="{{ route('profile.update-photo') }}" method="POST" enctype="multipart/form-data" class="mb-4">
+                                @csrf
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <input type="file" name="foto_perfil" class="form-control" accept="image/*" id="foto_perfil_update">
+                                        <small class="text-muted">JPG, PNG, máximo 2MB</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-upload"></i> Actualizar Foto
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <hr>
+
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-chart-bar"></i> Estadísticas
+                            </h6>
                             
                             <div class="row">
                                 <div class="col-sm-6">

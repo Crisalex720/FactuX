@@ -21,6 +21,7 @@ class Trabajador extends Authenticatable
         'apellido',
         'cargo',
         'contraseña',
+        'foto_perfil',
         'id_pais',
         'id_depart',
         'id_ciudad'

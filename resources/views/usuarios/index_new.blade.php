@@ -3,6 +3,8 @@
 @section('title', 'Gestión de Usuarios')
 
 @push('styles')
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="{{ asset('css/usuarios.css') }}" rel="stylesheet">
 <style>
 .foto-preview img {
@@ -216,6 +218,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
+                            <th>Foto</th>
                             <th>Cédula</th>
                             <th>Nombre</th>
                             <th>Apellido</th>
@@ -232,6 +235,10 @@
                             <tr class="{{ $usuario->cedula == '999999999' ? 'table-warning' : '' }}" 
                                 @if($usuario->cedula == '999999999') title="Usuario Maestro del Sistema" @endif>
                                 <td>{{ $usuario->id_trab }}</td>
+                                <td>
+                                    <img src="{{ $usuario->foto_perfil ? asset('uploads/perfiles/' . $usuario->foto_perfil) : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNlMGUwZTAiLz4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMyIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJtNCAxOSAuNS0xLjVBMi41IDIuNSAwIDAgMSA3IDEzaDEwYTIuNSAyLjUgMCAwIDEgMi41IDQuNUwyMCAxOSIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K' }}" 
+                                         alt="Foto" class="user-photo rounded-circle">
+                                </td>
                                 <td>
                                     {{ $usuario->cedula }}
                                     @if($usuario->cedula == '999999999')
@@ -326,7 +333,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-muted py-4">
+                                <td colspan="11" class="text-center text-muted py-4">
                                     <i class="fas fa-users fa-3x mb-3"></i>
                                     <p>No hay usuarios registrados</p>
                                 </td>
@@ -433,6 +440,7 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
 // Preview de foto en registro
 function previewFoto(input) {
@@ -503,8 +511,6 @@ function togglePassword(userId) {
 
 // Función editar usuario
 function editarUsuario(id, cedula, nombre, apellido, cargo, contrasena, idPais, idDepart, idCiudad, foto) {
-    console.log('Editando usuario:', id); // Debug
-    
     document.getElementById('editarForm').action = `/usuarios/${id}`;
     document.getElementById('edit_cedula').value = cedula;
     document.getElementById('edit_nombre').value = nombre;
@@ -519,9 +525,8 @@ function editarUsuario(id, cedula, nombre, apellido, cargo, contrasena, idPais, 
     const fotoUrl = foto ? `/uploads/perfiles/${foto}` : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiNlMGUwZTAiLz4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMyIgZmlsbD0iIzk5OTk5OSIvPgo8cGF0aCBkPSJtNCAxOSAuNS0xLjVBMi41IDIuNSAwIDAgMSA3IDEzaDEwYTIuNSAyLjUgMCAwIDEgMi41IDQuNUwyMCAxOSIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
     document.getElementById('edit_preview_foto').src = fotoUrl;
     
-    // Mostrar modal usando Bootstrap 5
-    const modal = new bootstrap.Modal(document.getElementById('editarModal'));
-    modal.show();
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('editarModal')).show();
 }
 
 // Filtrar ciudades por departamento
@@ -563,4 +568,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+@endpush
 @endsection

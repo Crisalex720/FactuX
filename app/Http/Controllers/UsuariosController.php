@@ -74,12 +74,22 @@ class UsuariosController extends Controller
         }
 
         try {
+            $fotoNombre = null;
+            
+            // Manejar subida de foto
+            if ($request->hasFile('foto_perfil')) {
+                $foto = $request->file('foto_perfil');
+                $fotoNombre = time() . '_' . $request->cedula . '.' . $foto->getClientOriginalExtension();
+                $foto->move(public_path('uploads/perfiles'), $fotoNombre);
+            }
+            
             Trabajador::create([
                 'cedula' => $request->cedula,
                 'nombre' => $request->nombre,
                 'apellido' => $request->apellido,
                 'cargo' => $request->cargo,
                 'contraseña' => $request->contrasena,
+                'foto_perfil' => $fotoNombre,
                 'id_pais' => $request->id_pais,
                 'id_depart' => $request->id_depart,
                 'id_ciudad' => $request->id_ciudad
@@ -118,7 +128,7 @@ class UsuariosController extends Controller
         }
 
         try {
-            $trabajador->update([
+            $updateData = [
                 'cedula' => $request->cedula,
                 'nombre' => $request->nombre,
                 'apellido' => $request->apellido,
@@ -127,7 +137,22 @@ class UsuariosController extends Controller
                 'id_pais' => $request->id_pais,
                 'id_depart' => $request->id_depart,
                 'id_ciudad' => $request->id_ciudad
-            ]);
+            ];
+            
+            // Manejar subida de nueva foto
+            if ($request->hasFile('foto_perfil')) {
+                // Eliminar foto anterior si existe
+                if ($trabajador->foto_perfil && file_exists(public_path('uploads/perfiles/' . $trabajador->foto_perfil))) {
+                    unlink(public_path('uploads/perfiles/' . $trabajador->foto_perfil));
+                }
+                
+                $foto = $request->file('foto_perfil');
+                $fotoNombre = time() . '_' . $request->cedula . '.' . $foto->getClientOriginalExtension();
+                $foto->move(public_path('uploads/perfiles'), $fotoNombre);
+                $updateData['foto_perfil'] = $fotoNombre;
+            }
+            
+            $trabajador->update($updateData);
 
             return redirect()->route('usuarios.index')->with('success', 'Usuario actualizado correctamente.');
         } catch (\Exception $e) {

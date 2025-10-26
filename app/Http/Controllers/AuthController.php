@@ -87,4 +87,38 @@ class AuthController extends Controller
         
         return view('auth.profile', compact('trabajador', 'totalFacturado'));
     }
+
+    // Actualizar foto de perfil
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'foto_perfil' => 'required|image|mimes:jpeg,png,jpg|max:2048', // máximo 2MB
+        ], [
+            'foto_perfil.required' => 'Debe seleccionar una foto.',
+            'foto_perfil.image' => 'El archivo debe ser una imagen.',
+            'foto_perfil.mimes' => 'Solo se permiten archivos JPG, JPEG y PNG.',
+            'foto_perfil.max' => 'La imagen no debe superar los 2MB.',
+        ]);
+
+        try {
+            $trabajador = Auth::guard('trabajador')->user();
+            
+            // Eliminar foto anterior si existe
+            if ($trabajador->foto_perfil && file_exists(public_path('uploads/perfiles/' . $trabajador->foto_perfil))) {
+                unlink(public_path('uploads/perfiles/' . $trabajador->foto_perfil));
+            }
+            
+            // Subir nueva foto
+            $foto = $request->file('foto_perfil');
+            $fotoNombre = time() . '_' . $trabajador->cedula . '.' . $foto->getClientOriginalExtension();
+            $foto->move(public_path('uploads/perfiles'), $fotoNombre);
+            
+            // Actualizar en base de datos
+            $trabajador->update(['foto_perfil' => $fotoNombre]);
+            
+            return redirect()->route('profile')->with('success', 'Foto de perfil actualizada correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('profile')->with('error', 'Error al actualizar la foto: ' . $e->getMessage());
+        }
+    }
 }

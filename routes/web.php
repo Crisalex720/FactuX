@@ -14,6 +14,7 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/profile', [AuthController::class, 'profile'])->name('profile')->middleware('auth:trabajador');
+Route::post('/profile/update-photo', [AuthController::class, 'updatePhoto'])->name('profile.update-photo')->middleware('auth:trabajador');
 
 Route::get('/', function () {
     return redirect()->route('inventario.index');
