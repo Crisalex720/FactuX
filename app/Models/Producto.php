@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property float $precio_costop
  * @property float $precio_ventap
  * @property string|null $imagen_url
+ * @property float $iva_porcentaje
+ * @property float $valor_iva
  * 
  * @property Collection|Devolucione[] $devoluciones
  * @property Collection|ListaProd[] $lista_prods
@@ -35,7 +37,9 @@ class Producto extends Model
 		'barcode' => 'int',
 		'cantidad_prod' => 'float',
 		'precio_costop' => 'float',
-		'precio_ventap' => 'float'
+		'precio_ventap' => 'float',
+		'iva_porcentaje' => 'float',
+		'valor_iva' => 'float'
 	];
 
 	protected $fillable = [
@@ -44,7 +48,9 @@ class Producto extends Model
 		'cantidad_prod',
 		'precio_costop',
 		'precio_ventap',
-		'imagen_url'
+		'imagen_url',
+		'iva_porcentaje',
+		'valor_iva'
 	];
 
 	public function devoluciones()

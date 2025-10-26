@@ -36,6 +36,8 @@ class InventarioController extends Controller
             'cantidad' => 'required|integer|min:0',
             'precio_costo' => 'required|numeric|min:0',
             'precio_venta' => 'required|numeric|min:0',
+            'iva_porcentaje' => 'nullable|numeric|min:0|max:100',
+            'valor_iva' => 'nullable|numeric|min:0',
             'imagen' => 'nullable|image|max:2048|dimensions:max_width=500,max_height=500'
         ]);
 
@@ -49,12 +51,19 @@ class InventarioController extends Controller
             $imagen_url = 'uploads/productos/' . $nombreArchivo;
         }
 
+        // Calcular valor IVA automáticamente si no se proporciona
+        $iva_porcentaje = $request->iva_porcentaje ?? 0;
+        $precio_venta = $request->precio_venta;
+        $valor_iva = ($precio_venta * $iva_porcentaje) / 100;
+
         DB::table('producto')->insert([
             'barcode' => $request->codigo_barra,
             'nombre_prod' => $request->nombre,
             'cantidad_prod' => $request->cantidad,
             'precio_costop' => $request->precio_costo,
             'precio_ventap' => $request->precio_venta,
+            'iva_porcentaje' => $iva_porcentaje,
+            'valor_iva' => $valor_iva,
             'imagen_url' => $imagen_url
         ]);
 
@@ -82,6 +91,8 @@ class InventarioController extends Controller
             'cantidad' => 'integer|min:0',
             'precio_costo' => 'numeric|min:0',
             'precio_venta' => 'required|numeric|min:0',
+            'iva_porcentaje' => 'nullable|numeric|min:0|max:100',
+            'valor_iva' => 'nullable|numeric|min:0',
             'imagen' => 'nullable|image|max:2048|dimensions:max_width=500,max_height=500'
         ]);
 
@@ -118,12 +129,19 @@ class InventarioController extends Controller
             $imagen_url = 'uploads/productos/' . $nombreArchivo;
         }
 
+        // Calcular valor IVA automáticamente
+        $iva_porcentaje = $request->iva_porcentaje ?? 0;
+        $precio_venta = $request->precio_venta;
+        $valor_iva = ($precio_venta * $iva_porcentaje) / 100;
+
         DB::table('producto')->where('id_producto', $id)->update([
             'barcode' => $request->codigo_barra,
             'nombre_prod' => $request->nombre,
             'cantidad_prod' => $request->cantidad,
             'precio_costop' => $request->precio_costo,
             'precio_ventap' => $request->precio_venta,
+            'iva_porcentaje' => $iva_porcentaje,
+            'valor_iva' => $valor_iva,
             'imagen_url' => $imagen_url
         ]);
 

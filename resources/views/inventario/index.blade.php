@@ -49,6 +49,8 @@
                                     <th>Cantidad</th>
                                     <th>Precio Costo</th>
                                     <th>Precio Venta</th>
+                                    <th>IVA %</th>
+                                    <th>Valor IVA</th>
                                     <th>Imagen</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -62,6 +64,8 @@
                                         <td>{{ number_format($producto->cantidad_prod) }}</td>
                                         <td>${{ number_format($producto->precio_costop, 2) }}</td>
                                         <td>${{ number_format($producto->precio_ventap, 2) }}</td>
+                                        <td>{{ number_format($producto->iva_porcentaje ?? 0, 2) }}%</td>
+                                        <td>${{ number_format($producto->valor_iva ?? 0, 2) }}</td>
                                         <td>
                                             @if (!empty($producto->imagen_url))
                                                 <button class="btn btn-info btn-sm" onclick="verImagen('{{ asset($producto->imagen_url) }}')" type="button">
@@ -72,7 +76,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <button class="btn btn-warning btn-sm" onclick="editarProducto('{{ $producto->id_producto }}', '{{ $producto->barcode }}', '{{ $producto->nombre_prod }}', '{{ $producto->cantidad_prod }}', '{{ $producto->precio_costop }}', '{{ $producto->precio_ventap }}', '{{ $producto->imagen_url ?? '' }}')">
+                                            <button class="btn btn-warning btn-sm" onclick="editarProducto('{{ $producto->id_producto }}', '{{ $producto->barcode }}', '{{ $producto->nombre_prod }}', '{{ $producto->cantidad_prod }}', '{{ $producto->precio_costop }}', '{{ $producto->precio_ventap }}', '{{ $producto->imagen_url ?? '' }}', '{{ $producto->iva_porcentaje ?? 0 }}', '{{ $producto->valor_iva ?? 0 }}')">
                                                 <i class="bi bi-pencil-square"></i> Editar
                                             </button>
                                             <form action="{{ route('inventario.destroy', $producto->id_producto) }}" method="POST" style="display: inline">
@@ -86,7 +90,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">No hay productos registrados</td>
+                                        <td colspan="10" class="text-center">No hay productos registrados</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -124,7 +128,17 @@
                 </div>
                 <div class="col-md-5">
                     <label class="form-label">Precio Venta *</label>
-                    <input type="number" name="precio_venta" min="0" step="0.01" class="form-control" required placeholder="$0.00">
+                    <input type="number" name="precio_venta" id="add_precio_venta" min="0" step="0.01" class="form-control" required placeholder="$0.00" onchange="calcularIVAAgregar()">
+                </div>
+            </div>
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">IVA (%) <small class="text-muted">(0 = sin IVA)</small></label>
+                    <input type="number" name="iva_porcentaje" id="add_iva_porcentaje" min="0" max="100" step="0.01" class="form-control" value="0" placeholder="0.00" onchange="calcularIVAAgregar()">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Valor IVA <small class="text-muted">(calculado)</small></label>
+                    <input type="number" name="valor_iva" id="add_valor_iva" min="0" step="0.01" class="form-control" value="0" readonly style="background-color: #f8f9fa;">
                 </div>
             </div>
             <div class="mb-3">
@@ -162,7 +176,17 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Precio Venta</label>
-                <input type="number" name="precio_venta" id="edit_precio_venta" min="0" step="0.01" class="form-control" required>
+                <input type="number" name="precio_venta" id="edit_precio_venta" min="0" step="0.01" class="form-control" required onchange="calcularIVAEditar()">
+            </div>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label class="form-label">IVA (%) <small class="text-muted">(0 = sin IVA)</small></label>
+                    <input type="number" name="iva_porcentaje" id="edit_iva_porcentaje" min="0" max="100" step="0.01" class="form-control" value="0" onchange="calcularIVAEditar()">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Valor IVA <small class="text-muted">(calculado)</small></label>
+                    <input type="number" name="valor_iva" id="edit_valor_iva" min="0" step="0.01" class="form-control" value="0" readonly style="background-color: #f8f9fa;">
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Imagen actual</label>
@@ -229,7 +253,7 @@ var modalEditar = document.getElementById('modalEditar');
 var cerrarEditar = document.getElementById('cerrarEditar');
 cerrarEditar.onclick = function() { modalEditar.style.display = 'none'; }
 
-function editarProducto(id, codigo, nombre, cantidad, precio_costo, precio_venta, imagen_url) {
+function editarProducto(id, codigo, nombre, cantidad, precio_costo, precio_venta, imagen_url, iva_porcentaje, valor_iva) {
     document.getElementById('edit_codigo').value = codigo;
     document.getElementById('edit_nombre').value = nombre;
     // Asegurar que cantidad tenga un valor numérico válido
@@ -237,6 +261,9 @@ function editarProducto(id, codigo, nombre, cantidad, precio_costo, precio_venta
     // Asegurar que precio_costo tenga un valor numérico válido  
     document.getElementById('edit_precio_costo').value = precio_costo || 0;
     document.getElementById('edit_precio_venta').value = precio_venta;
+    // Asegurar que IVA tenga valores numéricos válidos
+    document.getElementById('edit_iva_porcentaje').value = iva_porcentaje || 0;
+    document.getElementById('edit_valor_iva').value = valor_iva || 0;
     
     // Configurar la acción del formulario
     document.getElementById('formEditar').action = '/inventario/' + id;
@@ -284,5 +311,20 @@ var btnStock = document.getElementById('abrirModalStock');
 var closeStock = document.getElementById('cerrarModalStock');
 btnStock.onclick = function() { modalStock.style.display = 'block'; }
 closeStock.onclick = function() { modalStock.style.display = 'none'; }
+
+// Funciones para calcular IVA
+function calcularIVAAgregar() {
+    var precioVenta = parseFloat(document.getElementById('add_precio_venta').value) || 0;
+    var ivaPorcentaje = parseFloat(document.getElementById('add_iva_porcentaje').value) || 0;
+    var valorIva = (precioVenta * ivaPorcentaje) / 100;
+    document.getElementById('add_valor_iva').value = valorIva.toFixed(2);
+}
+
+function calcularIVAEditar() {
+    var precioVenta = parseFloat(document.getElementById('edit_precio_venta').value) || 0;
+    var ivaPorcentaje = parseFloat(document.getElementById('edit_iva_porcentaje').value) || 0;
+    var valorIva = (precioVenta * ivaPorcentaje) / 100;
+    document.getElementById('edit_valor_iva').value = valorIva.toFixed(2);
+}
 </script>
 @endsection

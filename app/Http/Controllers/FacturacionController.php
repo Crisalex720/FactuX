@@ -156,7 +156,9 @@ class FacturacionController extends Controller
                     'nombre_prod' => $producto->nombre_prod,
                     'precio' => $precio,
                     'cantidad' => $item['cantidad'],
-                    'subtotal' => $subtotal
+                    'subtotal' => $subtotal,
+                    'iva_porcentaje' => $producto->iva_porcentaje ?? 0,
+                    'valor_iva' => $producto->valor_iva ?? 0
                 ];
             }
         }
@@ -247,6 +249,7 @@ class FacturacionController extends Controller
                 ->join('producto as p', 'lp.id_producto', '=', 'p.id_producto')
                 ->where('lp.id_fact', $idFactura)
                 ->select('p.nombre_prod', 'lp.cantidad', 'p.precio_ventap', 
+                         'p.iva_porcentaje', 'p.valor_iva',
                          DB::raw('lp.cantidad * p.precio_ventap as subtotal'))
                 ->get();
 

@@ -91,6 +91,8 @@
                 <th>Producto</th>
                 <th>Precio unitario</th>
                 <th>Cantidad</th>
+                <th>IVA %</th>
+                <th>Valor IVA</th>
                 <th>Subtotal</th>
                 <th>Acción</th>
             </tr>
@@ -99,19 +101,26 @@
             @php
                 $carrito = session('carrito', []);
                 $totalFactura = 0;
+                $totalIVA = 0;
             @endphp
             
             @forelse($carrito as $item)
                 @php
                     $producto = $productos->firstWhere('id_producto', $item['id_producto']);
                     $precio = $producto ? $producto->precio_ventap : 0;
+                    $ivaPorcentaje = $producto ? ($producto->iva_porcentaje ?? 0) : 0;
+                    $valorIvaUnitario = $producto ? ($producto->valor_iva ?? 0) : 0;
+                    $valorIvaTotal = $valorIvaUnitario * $item['cantidad'];
                     $subtotal = $precio * $item['cantidad'];
                     $totalFactura += $subtotal;
+                    $totalIVA += $valorIvaTotal;
                 @endphp
                 <tr data-producto="{{ $item['id_producto'] }}">
                     <td>{{ $producto ? $producto->nombre_prod : 'Producto no encontrado' }}</td>
                     <td>${{ number_format($precio, 2) }}</td>
                     <td>{{ $item['cantidad'] }}</td>
+                    <td>{{ number_format($ivaPorcentaje, 2) }}%</td>
+                    <td>${{ number_format($valorIvaTotal, 2) }}</td>
                     <td>${{ number_format($subtotal, 2) }}</td>
                     <td>
                         <button type="button" class="btn btn-danger btn-sm btn-quitar-producto" 
@@ -120,13 +129,18 @@
                 </tr>
             @empty
                 <tr id="carritoVacio">
-                    <td colspan="5">El carrito está vacío.</td>
+                    <td colspan="7">El carrito está vacío.</td>
                 </tr>
             @endforelse
             
             @if(!empty($carrito))
-                <tr id="totalRow" style="font-weight:bold;background:#f1f5fa;">
-                    <td colspan="3" class="text-right">Total factura</td>
+                <tr style="background:#f8f9fa;">
+                    <td colspan="4" class="text-right"><strong>Total IVA:</strong></td>
+                    <td><strong>${{ number_format($totalIVA, 2) }}</strong></td>
+                    <td colspan="2"></td>
+                </tr>
+                <tr id="totalRow" style="font-weight:bold;background:#e3f2fd;">
+                    <td colspan="5" class="text-right">Total factura</td>
                     <td colspan="2" id="totalFactura">${{ number_format($totalFactura, 2) }}</td>
                 </tr>
             @endif
@@ -312,15 +326,23 @@ document.addEventListener('DOMContentLoaded', function() {
         tbody.innerHTML = '';
         
         if (carritoData.items.length === 0) {
-            tbody.innerHTML = '<tr id="carritoVacio"><td colspan="5">El carrito está vacío.</td></tr>';
+            tbody.innerHTML = '<tr id="carritoVacio"><td colspan="7">El carrito está vacío.</td></tr>';
             btnFinalizar.disabled = true;
         } else {
+            let totalIVA = 0;
             carritoData.items.forEach(item => {
+                const ivaPorcentaje = item.iva_porcentaje || 0;
+                const valorIvaUnitario = item.valor_iva || 0;
+                const valorIvaTotal = valorIvaUnitario * item.cantidad;
+                totalIVA += valorIvaTotal;
+                
                 const fila = `
                     <tr data-producto="${item.id_producto}">
                         <td>${item.nombre_prod}</td>
                         <td>$${formatNumber(item.precio)}</td>
                         <td>${item.cantidad}</td>
+                        <td>${formatNumber(ivaPorcentaje, 2)}%</td>
+                        <td>$${formatNumber(valorIvaTotal)}</td>
                         <td>$${formatNumber(item.subtotal)}</td>
                         <td>
                             <button type="button" class="btn btn-danger btn-sm btn-quitar-producto" 
@@ -331,10 +353,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 tbody.innerHTML += fila;
             });
             
+            // Agregar fila de total IVA
+            const filaTotalIVA = `
+                <tr style="background:#f8f9fa;">
+                    <td colspan="4" class="text-right"><strong>Total IVA:</strong></td>
+                    <td><strong>$${formatNumber(totalIVA)}</strong></td>
+                    <td colspan="2"></td>
+                </tr>
+            `;
+            tbody.innerHTML += filaTotalIVA;
+            
             // Agregar fila de total
             const filaTotal = `
-                <tr id="totalRow" style="font-weight:bold;background:#f1f5fa;">
-                    <td colspan="3" class="text-right">Total factura</td>
+                <tr id="totalRow" style="font-weight:bold;background:#e3f2fd;">
+                    <td colspan="5" class="text-right">Total factura</td>
                     <td colspan="2" id="totalFactura">$${formatNumber(carritoData.total)}</td>
                 </tr>
             `;
@@ -348,10 +380,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Función para formatear números
-    function formatNumber(num) {
+    function formatNumber(num, decimals = 2) {
         return new Intl.NumberFormat('es-CO', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
         }).format(num);
     }
 

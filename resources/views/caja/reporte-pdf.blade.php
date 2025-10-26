@@ -249,8 +249,7 @@
             <tr>
                 <td class="label">Promedio por Venta:</td>
                 <td>${{ number_format($estadisticas['promedio_venta'] ?? 0, 0) }}</td>
-                <td class="label">Duración del Período:</td>
-                <td>{{ $caja->fecha_apertura->diffForHumans($caja->fecha_cierre) }}</td>
+                <td colspan="2"></td>
             </tr>
         </table>
     </div>
