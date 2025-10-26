@@ -24,7 +24,7 @@
                 <ul class="navbar-nav me-auto">
                     @if(Auth::guard('trabajador')->user()->hasPermission('usuarios'))
                     <li class="nav-item mx-1">
-                        <a class="btn {{ request()->routeIs('usuarios.*') ? 'btn-secondary disabled' : 'btn-outline-secondary' }} nav-btn" 
+                        <a class="btn {{ request()->routeIs('usuarios.*') ? 'btn-primary disabled' : 'btn-outline-primary' }} nav-btn" 
                            href="{{ route('usuarios.index') }}" 
                            {{ request()->routeIs('usuarios.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
                            Usuarios
@@ -46,7 +46,7 @@
 
                     @if(Auth::guard('trabajador')->user()->hasPermission('facturas'))
                     <li class="nav-item mx-1">
-                        <a class="btn {{ request()->routeIs('facturas.*') ? 'btn-warning disabled' : 'btn-outline-warning' }} nav-btn" 
+                        <a class="btn {{ request()->routeIs('facturas.*') ? 'btn-primary disabled' : 'btn-outline-primary' }} nav-btn" 
                            href="{{ route('facturas.index') }}"
                            {{ request()->routeIs('facturas.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
                            Facturas
@@ -57,7 +57,7 @@
 
                     @if(Auth::guard('trabajador')->user()->hasPermission('reportes'))
                     <li class="nav-item mx-1">
-                        <a class="btn {{ request()->routeIs('reportes.*') ? 'btn-secondary disabled' : 'btn-outline-secondary' }} nav-btn" 
+                        <a class="btn {{ request()->routeIs('reportes.*') ? 'btn-primary disabled' : 'btn-outline-primary' }} nav-btn" 
                            href="{{ route('reportes.index') }}"
                            {{ request()->routeIs('reportes.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
                            Reportes
@@ -68,17 +68,29 @@
 
                     @if(Auth::guard('trabajador')->user()->hasPermission('inventario'))
                     <li class="nav-item mx-1">
-                        <a class="btn {{ request()->routeIs('inventario.*') ? 'btn-success disabled' : 'btn-outline-success' }} nav-btn" 
+                        <a class="btn {{ request()->routeIs('inventario.*') ? 'btn-primary disabled' : 'btn-outline-primary' }} nav-btn" 
                            href="{{ route('inventario.index') }}" 
                            {{ request()->routeIs('inventario.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
                            Inventario
+                           <i class="bi bi-boxes ms-1"></i>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(Auth::guard('trabajador')->user()->hasPermission('caja'))
+                    <li class="nav-item mx-1">
+                        <a class="btn {{ request()->routeIs('caja.*') ? 'btn-primary disabled' : 'btn-outline-primary' }} nav-btn" 
+                           href="{{ route('caja.index') }}" 
+                           {{ request()->routeIs('caja.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
+                           Caja
+                           <i class="bi bi-cash-coin ms-1"></i>
                         </a>
                     </li>
                     @endif
 
                     @if(Auth::guard('trabajador')->user()->hasPermission('clientes'))
                     <li class="nav-item mx-1">
-                        <a class="btn {{ request()->routeIs('clientes.*') ? 'btn-dark disabled' : 'btn-outline-dark' }} nav-btn" 
+                        <a class="btn {{ request()->routeIs('clientes.*') ? 'btn-primary disabled' : 'btn-outline-primary' }} nav-btn" 
                            href="{{ route('clientes.index') }}"
                            {{ request()->routeIs('clientes.*') ? 'tabindex="-1" aria-disabled="true"' : '' }}>
                            Clientes

@@ -136,14 +136,28 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($factura->estado !== 'anulado')
-                                        <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#anularModal{{ $factura->id_fact }}">
-                                            <i class="fas fa-times"></i> Anular
-                                        </button>
+                                    <div class="btn-group" role="group">
+                                        <!-- Botón Reimprimir Tirilla -->
+                                        <a href="{{ route('facturacion.tirilla', $factura->id_fact) }}" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           title="Reimprimir tirilla POS"
+                                           target="_blank">
+                                            <i class="fas fa-print"></i>
+                                        </a>
                                         
-                                        <!-- Modal de confirmación -->
+                                        <!-- Botón Anular (solo para facturas activas) -->
+                                        @if($factura->estado !== 'anulado')
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#anularModal{{ $factura->id_fact }}"
+                                                    title="Anular factura">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                    
+                                    <!-- Modal de confirmación de anulación -->
+                                    @if($factura->estado !== 'anulado')
                                         <div class="modal fade" id="anularModal{{ $factura->id_fact }}" tabindex="-1">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
@@ -169,8 +183,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    @else
-                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                             </tr>

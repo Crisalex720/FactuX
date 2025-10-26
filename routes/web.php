@@ -41,6 +41,7 @@ Route::middleware('auth:trabajador')->group(function () {
         Route::delete('/quitar-ajax/{id}', [FacturacionController::class, 'quitarProductoAjax'])->name('quitar.ajax');
         Route::get('/carrito', [FacturacionController::class, 'obtenerCarrito'])->name('carrito');
         Route::post('/finalizar', [FacturacionController::class, 'finalizarFactura'])->name('finalizar');
+        Route::get('/tirilla/{id}', [FacturacionController::class, 'tirillaPOS'])->name('tirilla');
     });
 
     // Rutas para el listado de facturas - Todos excepto cajero básico
@@ -66,6 +67,16 @@ Route::middleware('auth:trabajador')->group(function () {
     Route::prefix('reportes')->name('reportes.')->middleware('role:maestro,ceo,admin,administrativo')->group(function () {
         Route::get('/', [App\Http\Controllers\ReportesController::class, 'index'])->name('index');
         Route::get('/kardex', [App\Http\Controllers\ReportesController::class, 'kardex'])->name('kardex');
+    });
+
+    // Rutas de caja - Solo roles administrativos y cajeros
+    Route::prefix('caja')->name('caja.')->middleware('role:maestro,ceo,admin,administrativo,cajero')->group(function () {
+        Route::get('/', [App\Http\Controllers\CajaController::class, 'index'])->name('index');
+        Route::post('/abrir', [App\Http\Controllers\CajaController::class, 'abrir'])->name('abrir');
+        Route::put('/{id}/cerrar', [App\Http\Controllers\CajaController::class, 'cerrar'])->name('cerrar');
+        Route::get('/{id}', [App\Http\Controllers\CajaController::class, 'show'])->name('show');
+        Route::delete('/{id}', [App\Http\Controllers\CajaController::class, 'destroy'])->name('destroy')->middleware('role:maestro,ceo,admin');
+        Route::get('/{id}/reporte-pdf', [App\Http\Controllers\CajaController::class, 'reportePdf'])->name('reporte-pdf');
     });
 
     // Rutas para productos - Solo roles administrativos

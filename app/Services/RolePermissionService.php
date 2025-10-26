@@ -16,7 +16,8 @@ class RolePermissionService
                 'facturas',
                 'reportes',
                 'inventario',
-                'clientes'
+                'clientes',
+                'caja'
             ],
             'ceo' => [
                 'usuarios',
@@ -24,7 +25,8 @@ class RolePermissionService
                 'facturas',
                 'reportes',
                 'inventario',
-                'clientes'
+                'clientes',
+                'caja'
             ],
             'admin' => [
                 'usuarios',
@@ -32,18 +34,21 @@ class RolePermissionService
                 'facturas',
                 'reportes',
                 'inventario',
-                'clientes'
+                'clientes',
+                'caja'
             ],
             'administrativo' => [
                 'facturacion', 
                 'facturas',
                 'reportes',
                 'inventario',
-                'clientes'
+                'clientes',
+                'caja'
             ],
             'cajero' => [
                 'facturacion',
-                'clientes'
+                'clientes',
+                'caja'
             ],
             'vendedor' => [
                 'facturacion',
@@ -133,7 +138,8 @@ class RolePermissionService
             'facturas' => 'Listado de Facturas',
             'reportes' => 'Reportes y Estadísticas',
             'inventario' => 'Gestión de Inventario',
-            'clientes' => 'Gestión de Clientes'
+            'clientes' => 'Gestión de Clientes',
+            'caja' => 'Gestión de Caja'
         ];
     }
 }

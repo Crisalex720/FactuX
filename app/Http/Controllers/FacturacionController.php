@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Factura;
 use App\Models\Producto;
 use App\Models\Cliente;
@@ -219,7 +220,8 @@ class FacturacionController extends Controller
             // Restablecer cliente final después de crear la factura
             $clienteDefault = Cliente::where('nombre_cl', 'ilike', '%cliente final%')->first();
             
-            return redirect()->route('facturacion.index')->with('success', 'Factura registrada correctamente');
+            // Redirigir a la tirilla POS para impresión automática
+            return redirect()->route('facturacion.tirilla', ['id' => $factura->id_fact, 'print' => 'true']);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -227,5 +229,45 @@ class FacturacionController extends Controller
         }
     }
 
+    public function tirillaPOS($idFactura)
+    {
+        try {
+            // Obtener factura de la tabla principal (más confiable)
+            $factura = DB::table('factura')->where('id_fact', $idFactura)->first();
+            
+            if (!$factura) {
+                return redirect()->route('facturacion.index')->with('error', 'Factura no encontrada');
+            }
 
+            // Agregar campos calculados para compatibilidad con la vista
+            $factura->prefijo = $factura->prefijo_fact ?? 'FACT';
+            $factura->consecutivo = $factura->num_fact ?? $factura->id_fact;
+
+            $productos = DB::table('lista_prod as lp')
+                ->join('producto as p', 'lp.id_producto', '=', 'p.id_producto')
+                ->where('lp.id_fact', $idFactura)
+                ->select('p.nombre_prod', 'lp.cantidad', 'p.precio_ventap', 
+                         DB::raw('lp.cantidad * p.precio_ventap as subtotal'))
+                ->get();
+
+            // Obtener cliente
+            $cliente = null;
+            if ($factura->cliente) {
+                $cliente = DB::table('cliente')->where('id_cliente', $factura->cliente)->first();
+            }
+
+            // Obtener trabajador
+            $trabajador = null;
+            if ($factura->id_trab) {
+                $trabajador = DB::table('trabajadores')->where('id_trab', $factura->id_trab)->first();
+            }
+
+            return view('facturacion.tirilla-pos', compact('factura', 'productos', 'cliente', 'trabajador'));
+            
+        } catch (\Exception $e) {
+            // En caso de error, mostrar más información para debugging
+            Log::error('Error en tirillaPOS: ' . $e->getMessage() . ' - Línea: ' . $e->getLine() . ' - Archivo: ' . $e->getFile());
+            return redirect()->route('facturacion.index')->with('error', 'Error al cargar la tirilla: ' . $e->getMessage());
+        }
+    }
 }

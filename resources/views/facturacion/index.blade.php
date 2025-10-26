@@ -17,8 +17,10 @@
     <!-- Formulario para agregar productos -->
     <form id="formAgregarProducto" class="mb-3">
         @csrf
-        <div class="row align-items-end">
-            <div class="col-md-4">
+        
+        <!-- Fila 1: Cliente y Código de Barras -->
+        <div class="row align-items-end mb-2">
+            <div class="col-md-5">
                 <label class="form-label">Cliente</label>
                 <select id="clienteSelect" name="id_cliente" class="form-control" required>
                     @if($clienteDefault)
@@ -31,20 +33,46 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-5">
+                <label class="form-label">
+                    <i class="fas fa-barcode"></i> Código de Barras
+                </label>
+                <input type="text" id="codigoBarrasInput" name="codigo_barras" class="form-control" 
+                       placeholder="Escanea o escribe el código de barras" autocomplete="off">
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="btnLimpiarBarras" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Fila 2: Producto, Cantidad y Agregar -->
+        <div class="row align-items-end">
+            <div class="col-md-5">
                 <label class="form-label">Producto</label>
                 <select id="productoSelect" name="id_producto" class="form-control" required>
-                    @foreach($productos as $producto)
-                        <option value="{{ $producto->id_producto }}">{{ $producto->nombre_prod }}</option>
+                    <option value="">Seleccionar producto...</option>
+                    @foreach($productos->take(10) as $producto)
+                        <option value="{{ $producto->id_producto }}" data-codigo="{{ $producto->codigo_prod ?? '' }}">
+                            {{ $producto->nombre_prod }}
+                        </option>
                     @endforeach
                 </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Buscar Producto</label>
+                <input type="text" id="buscarProductoInput" class="form-control" 
+                       placeholder="Escribir para buscar..." autocomplete="off">
             </div>
             <div class="col-md-2">
                 <label class="form-label">Cantidad</label>
                 <input type="number" id="cantidadInput" name="cantidad" class="form-control" min="1" value="1" required>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Agregar al carrito</button>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-cart-plus"></i> Agregar
+                </button>
             </div>
         </div>
     </form>
@@ -128,6 +156,88 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const clienteDefaultId = '{{ $clienteDefault ? $clienteDefault->id_cliente : "" }}';
+    const todosProductos = @json($productos);
+    
+    // Manejar código de barras
+    const codigoBarrasInput = document.getElementById('codigoBarrasInput');
+    const productoSelect = document.getElementById('productoSelect');
+    const cantidadInput = document.getElementById('cantidadInput');
+    const buscarProductoInput = document.getElementById('buscarProductoInput');
+    
+    // Función para buscar producto por código de barras
+    codigoBarrasInput.addEventListener('input', function() {
+        const codigo = this.value.trim();
+        if (codigo.length > 0) {
+            const producto = todosProductos.find(p => p.codigo_prod === codigo);
+            if (producto) {
+                productoSelect.value = producto.id_producto;
+                cantidadInput.focus();
+                cantidadInput.select();
+            }
+        }
+    });
+    
+    // Permitir agregar con Enter en código de barras
+    codigoBarrasInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const codigo = this.value.trim();
+            if (codigo.length > 0) {
+                const producto = todosProductos.find(p => p.codigo_prod === codigo);
+                if (producto) {
+                    productoSelect.value = producto.id_producto;
+                    document.getElementById('formAgregarProducto').dispatchEvent(new Event('submit'));
+                }
+            }
+        }
+    });
+    
+    // Limpiar código de barras
+    document.getElementById('btnLimpiarBarras').addEventListener('click', function() {
+        codigoBarrasInput.value = '';
+        codigoBarrasInput.focus();
+    });
+    
+    // Búsqueda de productos
+    buscarProductoInput.addEventListener('input', function() {
+        const termino = this.value.toLowerCase().trim();
+        const selectProducto = document.getElementById('productoSelect');
+        
+        // Limpiar opciones actuales
+        selectProducto.innerHTML = '<option value="">Seleccionar producto...</option>';
+        
+        if (termino.length === 0) {
+            // Mostrar solo los primeros 10 productos
+            todosProductos.slice(0, 10).forEach(producto => {
+                const option = document.createElement('option');
+                option.value = producto.id_producto;
+                option.textContent = producto.nombre_prod;
+                option.setAttribute('data-codigo', producto.codigo_prod || '');
+                selectProducto.appendChild(option);
+            });
+        } else {
+            // Filtrar productos por nombre
+            const productosFiltrados = todosProductos.filter(producto => 
+                producto.nombre_prod.toLowerCase().includes(termino)
+            ).slice(0, 15); // Máximo 15 resultados
+            
+            productosFiltrados.forEach(producto => {
+                const option = document.createElement('option');
+                option.value = producto.id_producto;
+                option.textContent = producto.nombre_prod;
+                option.setAttribute('data-codigo', producto.codigo_prod || '');
+                selectProducto.appendChild(option);
+            });
+            
+            if (productosFiltrados.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No se encontraron productos';
+                option.disabled = true;
+                selectProducto.appendChild(option);
+            }
+        }
+    });
     
     // Manejar envío del formulario para agregar productos
     document.getElementById('formAgregarProducto').addEventListener('submit', function(e) {
@@ -149,7 +259,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 actualizarCarrito(data.carrito);
                 // Resetear formulario
                 document.getElementById('cantidadInput').value = 1;
+                document.getElementById('codigoBarrasInput').value = '';
+                document.getElementById('buscarProductoInput').value = '';
                 document.getElementById('productoSelect').selectedIndex = 0;
+                
+                // Recargar productos iniciales
+                buscarProductoInput.dispatchEvent(new Event('input'));
+                
+                // Enfocar código de barras para siguiente producto
+                codigoBarrasInput.focus();
                 
                 // Actualizar cliente seleccionado en el input hidden para la factura
                 const clienteSeleccionado = document.getElementById('clienteSelect').value;
