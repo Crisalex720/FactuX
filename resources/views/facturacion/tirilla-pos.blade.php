@@ -152,7 +152,7 @@
                 <span>${{ number_format($totalFactura, 2) }}</span>
             </div>
             <div class="total-linea">
-                <span>IVA:</span>
+                <span>IVA total:</span>
                 <span>${{ number_format($totalIVA, 2) }}</span>
             </div>
             <div class="total-linea total-final">

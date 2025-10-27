@@ -67,23 +67,7 @@
             @if($facturas->count() > 0)
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        @if($paginatedFacturas)
-                            <small class="text-muted">
-                                Mostrando {{ ($paginatedFacturas->currentPage() - 1) * $paginatedFacturas->perPage() + 1 }} 
-                                a {{ min($paginatedFacturas->currentPage() * $paginatedFacturas->perPage(), $paginatedFacturas->total()) }} 
-                                de {{ $paginatedFacturas->total() }} facturas
-                            </small>
-                        @else
-                            <small class="text-muted">
-                                Mostrando todas las {{ $facturas->count() }} facturas
-                            </small>
-                        @endif
-                    </div>
-                    <div>
                         @if(request('busqueda') || request('estado') !== 'activa')
-                            <span class="badge bg-info">
-                                <i class="fas fa-filter"></i> Filtros aplicados
-                            </span>
                         @endif
                     </div>
                 </div>
@@ -93,6 +77,7 @@
                 <table class="table table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
+                            <th>#</th>
                             <th>Prefijo</th>
                             <th>Consecutivo</th>
                             <th>Fecha</th>
@@ -105,8 +90,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($facturas as $factura)
+                        @forelse($facturas as $index => $factura)
                             <tr>
+                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ $factura->prefijo }}</td>
                                 <td>{{ $factura->consecutivo }}</td>
                                 <td>
@@ -188,7 +174,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center py-4">
+                                <td colspan="10" class="text-center py-4">
                                     <div class="text-muted">
                                         <i class="fas fa-file-invoice fa-3x mb-3"></i>
                                         <p>No hay facturas registradas</p>
